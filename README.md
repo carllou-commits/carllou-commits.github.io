@@ -4,6 +4,8 @@
 </head>
 <body>
     <a href="Assign1.html">As1 - Movies</a>
+   <a href=”assign2.html”>Assignment 2 - Movie Profiles</a>
+
     <h1>The Truman Show</h1>
     <img src="TrumanPoster.png" height="200px">
     <p>Truman Burbank doesn't realize his entire life is a reality TV show filmed inside a giant TV studio. As he begins to notice strange occurrences, he becomes determined to escape and discover the truth. The film explores themes of reality, free will, and what it means to be truly free.</p>
