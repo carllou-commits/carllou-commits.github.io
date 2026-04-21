@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Truman Show - Table</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0d1520;
+      color: #eef4fb;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 20px;
+    }
+
+    table {
+      width: 75%;
+      border-collapse: collapse;
+      border: 3px solid #1f2937;
+      background: #15202b;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    caption {
+      caption-side: top;
+      padding: 18px 0;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #f8fafc;
+    }
+
+    th, td {
+      border: 3px solid #1f2937;
+      padding: 18px 16px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #1b2a3b;
+      color: #f8fafc;
+      text-align: left;
+    }
+
+    td {
+      color: #eef4fb;
+    }
+
+    td:nth-child(1) {
+      background: #172433;
+      width: 35%;
+      text-align: center;
+    }
+
+    td:nth-child(2) {
+      background: #1f3347;
+    }
+
+    td:nth-child(3) {
+      background: #25394f;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 2px solid #324760;
+    }
+
+    .title-cell {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .title-cell strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #f9dc5c;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <caption>The Truman Show Movie Info</caption>
+    <tr>
+      <th>Poster</th>
+      <th>Title + Release Date</th>
+      <th>Fun Fact</th>
+    </tr>
+    <tr>
+      <td>
+        <img src="https://m.media-amazon.com/images/M/MV5BNzA3ZjZlNzYtMTdjMy00NjMzLTk5ZGYtMTkyYzNiOGM1YmM3XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" alt="The Truman Show poster">
+      </td>
+      <td class="title-cell">
+        <strong>The Truman Show</strong>
+        Released: June 5, 1998
+      </td>
+      <td>
+        The movie was filmed in the real town of Seaside, Florida, and the town itself became nearly as famous as the film.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
