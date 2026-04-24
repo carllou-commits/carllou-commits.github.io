@@ -39,6 +39,7 @@
         let gameRunning = true;
         let speed = 6;
         let won = false;
+        let lastSpikes = 0;
 
         function drawPlayer() {
             ctx.fillStyle = '#00FFFF';
@@ -122,8 +123,10 @@
             // Generate obstacles
             if (Math.random() < 0.02) {
                 let type = Math.random() < 0.5 ? 'block' : 'spike';
+                if (type === 'spike' && lastSpikes >= 3) type = 'block';
                 let y = 320; // Both on ground
                 obstacles.push({ x: 800, y: y, width: 30, height: 30, type: type });
+                if (type === 'spike') lastSpikes++; else lastSpikes = 0;
             }
         }
 
@@ -164,6 +167,7 @@
                 speed = 6;
                 gameRunning = true;
                 won = false;
+                lastSpikes = 0;
             }
         });
 
@@ -171,3 +175,4 @@
     </script>
 </body>
 </html>
+
