@@ -41,6 +41,7 @@
         let won = false;
         let lastSpikes = 0;
         let angle = 0;
+        let lastType = 'block';
 
         function drawPlayer() {
             ctx.save();
@@ -74,8 +75,6 @@
         function update() {
             if (!gameRunning) return;
 
-            angle += 0.1;
-
             player.y += player.dy;
             player.dy += player.gravity;
 
@@ -101,6 +100,8 @@
                 player.onGround = false;
             }
 
+            if (!player.onGround) angle += 0.1;
+
             obstacles.forEach(obstacle => {
                 obstacle.x -= speed;
                 if (obstacle.x + obstacle.width < 0) {
@@ -124,10 +125,11 @@
 
             // Generate obstacles
             if (Math.random() < 0.02) {
-                let type = Math.random() < 0.5 ? 'block' : 'spike';
+                let type = lastType === 'block' ? 'spike' : 'block';
                 if (type === 'spike' && lastSpikes >= 3) type = 'block';
                 let y = 320; // Both on ground
                 obstacles.push({ x: 800, y: y, width: 30, height: 30, type: type });
+                lastType = type;
                 if (type === 'spike') lastSpikes++; else lastSpikes = 0;
             }
         }
@@ -171,6 +173,7 @@
                 won = false;
                 lastSpikes = 0;
                 angle = 0;
+                lastType = 'block';
             }
         });
 
