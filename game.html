@@ -40,10 +40,15 @@
         let speed = 6;
         let won = false;
         let lastSpikes = 0;
+        let angle = 0;
 
         function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.rotate(angle);
             ctx.fillStyle = '#00FFFF';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+            ctx.restore();
         }
 
         function drawObstacle(obstacle) {
@@ -68,6 +73,8 @@
 
         function update() {
             if (!gameRunning) return;
+
+            angle += 0.1;
 
             player.y += player.dy;
             player.dy += player.gravity;
@@ -163,6 +170,7 @@
                 gameRunning = true;
                 won = false;
                 lastSpikes = 0;
+                angle = 0;
             }
         });
 
@@ -170,5 +178,6 @@
     </script>
 </body>
 </html>
+
 
 
