@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-    <div id="instructions">Tap SPACE to jump! Avoid obstacles!</div>
+    <div id="instructions">Tap SPACE to jump! Avoid obstacles! Portals activate wave mode!</div>
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -42,6 +42,9 @@
         let lastSpikes = 0;
         let angle = 0;
         let lastType = 'block';
+        let inWave = false;
+        let waveStart = 0;
+        let waveEnd = 0;
 
         function drawPlayer() {
             ctx.save();
@@ -64,6 +67,11 @@
                 ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
                 ctx.closePath();
                 ctx.fill();
+            } else if (obstacle.type === 'portal') {
+                ctx.fillStyle = '#800080';
+                ctx.beginPath();
+                ctx.arc(obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height / 2, obstacle.width / 2, 0, 2 * Math.PI);
+                ctx.fill();
             }
         }
 
@@ -75,41 +83,52 @@
         function update() {
             if (!gameRunning) return;
 
-            player.y += player.dy;
-            player.dy += player.gravity;
+            if (inWave) {
+                if (Date.now() > waveEnd) inWave = false;
+                else player.y = 200 + 50 * Math.sin((Date.now() - waveStart) * 0.01);
+            } else {
+                player.y += player.dy;
+                player.dy += player.gravity;
 
-            let landedOnBlock = false;
-            obstacles.forEach(obstacle => {
-                if (obstacle.type === 'block' && player.dy > 0 &&
-                    player.x < obstacle.x + obstacle.width &&
-                    player.x + player.width > obstacle.x &&
-                    player.y + player.height >= obstacle.y &&
-                    player.y + player.height <= obstacle.y + obstacle.height) {
-                    player.y = obstacle.y - player.height;
+                let landedOnBlock = false;
+                obstacles.forEach(obstacle => {
+                    if (obstacle.type === 'block' && player.dy > 0 &&
+                        player.x < obstacle.x + obstacle.width &&
+                        player.x + player.width > obstacle.x &&
+                        player.y + player.height >= obstacle.y &&
+                        player.y + player.height <= obstacle.y + obstacle.height) {
+                        player.y = obstacle.y - player.height;
+                        player.dy = 0;
+                        player.onGround = true;
+                        landedOnBlock = true;
+                    }
+                });
+
+                if (!landedOnBlock && player.y >= 330) {
+                    player.y = 330;
                     player.dy = 0;
                     player.onGround = true;
-                    landedOnBlock = true;
+                } else if (!landedOnBlock) {
+                    player.onGround = false;
                 }
-            });
 
-            if (!landedOnBlock && player.y >= 330) {
-                player.y = 330;
-                player.dy = 0;
-                player.onGround = true;
-            } else if (!landedOnBlock) {
-                player.onGround = false;
+                if (!player.onGround) angle += 0.1;
             }
-
-            if (!player.onGround) angle += 0.1;
 
             obstacles.forEach(obstacle => {
                 obstacle.x -= speed;
                 if (obstacle.x + obstacle.width < 0) {
                     obstacles.shift();
-                    score++;
-                    if (score >= 50) {
-                        gameRunning = false;
-                        won = true;
+                    if (obstacle.type === 'portal') {
+                        inWave = true;
+                        waveStart = Date.now();
+                        waveEnd = Date.now() + 5000; // 5 seconds
+                    } else {
+                        score++;
+                        if (score >= 50) {
+                            gameRunning = false;
+                            won = true;
+                        }
                     }
                     speed += 0.1; // Increase speed over time
                 }
@@ -125,12 +144,18 @@
 
             // Generate obstacles
             if (Math.random() < 0.02) {
-                let type = lastType === 'block' ? 'spike' : 'block';
-                if (type === 'spike' && lastSpikes >= 3) type = 'block';
-                let y = 320; // Both on ground
+                let type;
+                if (Math.random() < 0.05) type = 'portal';
+                else {
+                    type = lastType === 'block' ? 'spike' : 'block';
+                    if (type === 'spike' && lastSpikes >= 3) type = 'block';
+                }
+                let y = type === 'portal' ? 250 : 320; // Portal higher
                 obstacles.push({ x: 800, y: y, width: 30, height: 30, type: type });
-                lastType = type;
-                if (type === 'spike') lastSpikes++; else lastSpikes = 0;
+                if (type !== 'portal') {
+                    lastType = type;
+                    if (type === 'spike') lastSpikes++; else lastSpikes = 0;
+                }
             }
         }
 
@@ -158,7 +183,7 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && player.onGround) {
+            if (e.code === 'Space' && player.onGround && !inWave) {
                 player.dy = player.jumpPower;
                 player.onGround = false;
             }
@@ -174,6 +199,9 @@
                 lastSpikes = 0;
                 angle = 0;
                 lastType = 'block';
+                inWave = false;
+                waveStart = 0;
+                waveEnd = 0;
             }
         });
 
@@ -181,6 +209,5 @@
     </script>
 </body>
 </html>
-
 
 
