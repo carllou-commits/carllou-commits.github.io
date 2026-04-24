@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Mario Game</title>
+    <title>Geometry Dash-like Game</title>
     <style>
         body {
             display: flex;
@@ -11,78 +11,103 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: #87CEEB;
+            background: #000;
             font-family: Arial, sans-serif;
         }
         canvas {
-            border: 2px solid #000;
-            background: #FFF;
+            border: 2px solid #FFF;
+            background: #000;
         }
         #instructions {
             position: absolute;
             top: 10px;
             left: 10px;
-            color: #000;
+            color: #FFF;
         }
     </style>
 </head>
 <body>
-    <div id="instructions">Use SPACE to jump!</div>
+    <div id="instructions">Tap SPACE to jump! Avoid obstacles!</div>
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        let mario = { x: 50, y: 300, width: 30, height: 30, dy: 0, jumpPower: -15, gravity: 0.8 };
+        let player = { x: 50, y: 300, width: 20, height: 20, dy: 0, jumpPower: -12, gravity: 0.6, onGround: true };
         let obstacles = [];
         let score = 0;
         let gameRunning = true;
+        let speed = 6;
 
-        function drawMario() {
-            ctx.fillStyle = '#FF0000';
-            ctx.fillRect(mario.x, mario.y, mario.width, mario.height);
+        function drawPlayer() {
+            ctx.fillStyle = '#00FFFF';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
         }
 
         function drawObstacle(obstacle) {
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            if (obstacle.type === 'block') {
+                ctx.fillStyle = '#FF0000';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            } else if (obstacle.type === 'spike') {
+                ctx.fillStyle = '#FFFF00';
+                ctx.beginPath();
+                ctx.moveTo(obstacle.x, obstacle.y + obstacle.height);
+                ctx.lineTo(obstacle.x + obstacle.width / 2, obstacle.y);
+                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawGround() {
+            ctx.fillStyle = '#555';
+            ctx.fillRect(0, 350, canvas.width, 50);
         }
 
         function update() {
             if (!gameRunning) return;
 
-            mario.y += mario.dy;
-            mario.dy += mario.gravity;
+            player.y += player.dy;
+            player.dy += player.gravity;
 
-            if (mario.y >= 300) {
-                mario.y = 300;
-                mario.dy = 0;
+            if (player.y >= 330) {
+                player.y = 330;
+                player.dy = 0;
+                player.onGround = true;
+            } else {
+                player.onGround = false;
             }
 
             obstacles.forEach(obstacle => {
-                obstacle.x -= 5;
+                obstacle.x -= speed;
                 if (obstacle.x + obstacle.width < 0) {
                     obstacles.shift();
                     score++;
+                    speed += 0.1; // Increase speed over time
                 }
-                if (mario.x < obstacle.x + obstacle.width &&
-                    mario.x + mario.width > obstacle.x &&
-                    mario.y < obstacle.y + obstacle.height &&
-                    mario.y + mario.height > obstacle.y) {
+                // Collision detection
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
                     gameRunning = false;
                 }
             });
 
-            if (Math.random() < 0.01) {
-                obstacles.push({ x: 800, y: 300, width: 30, height: 30 });
+            // Generate obstacles
+            if (Math.random() < 0.02) {
+                let type = Math.random() < 0.5 ? 'block' : 'spike';
+                let y = type === 'block' ? 300 : 320;
+                obstacles.push({ x: 800, y: y, width: 30, height: 30, type: type });
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawMario();
+            drawGround();
+            drawPlayer();
             obstacles.forEach(drawObstacle);
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = '#FFF';
             ctx.font = '20px Arial';
             ctx.fillText('Score: ' + score, 10, 30);
             if (!gameRunning) {
@@ -97,14 +122,17 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && mario.y === 300) {
-                mario.dy = mario.jumpPower;
+            if (e.code === 'Space' && player.onGround) {
+                player.dy = player.jumpPower;
+                player.onGround = false;
             }
             if (e.code === 'KeyR' && !gameRunning) {
-                mario.y = 300;
-                mario.dy = 0;
+                player.y = 300;
+                player.dy = 0;
+                player.onGround = true;
                 obstacles = [];
                 score = 0;
+                speed = 6;
                 gameRunning = true;
             }
         });
