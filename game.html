@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Mario Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #87CEEB;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 2px solid #000;
+            background: #FFF;
+        }
+        #instructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">Use SPACE to jump!</div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let mario = { x: 50, y: 300, width: 30, height: 30, dy: 0, jumpPower: -15, gravity: 0.8 };
+        let obstacles = [];
+        let score = 0;
+        let gameRunning = true;
+
+        function drawMario() {
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(mario.x, mario.y, mario.width, mario.height);
+        }
+
+        function drawObstacle(obstacle) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            mario.y += mario.dy;
+            mario.dy += mario.gravity;
+
+            if (mario.y >= 300) {
+                mario.y = 300;
+                mario.dy = 0;
+            }
+
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 5;
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.shift();
+                    score++;
+                }
+                if (mario.x < obstacle.x + obstacle.width &&
+                    mario.x + mario.width > obstacle.x &&
+                    mario.y < obstacle.y + obstacle.height &&
+                    mario.y + mario.height > obstacle.y) {
+                    gameRunning = false;
+                }
+            });
+
+            if (Math.random() < 0.01) {
+                obstacles.push({ x: 800, y: 300, width: 30, height: 30 });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMario();
+            obstacles.forEach(drawObstacle);
+            ctx.fillStyle = '#000';
+            ctx.font = '20px Arial';
+            ctx.fillText('Score: ' + score, 10, 30);
+            if (!gameRunning) {
+                ctx.fillText('Game Over! Press R to Restart', 300, 200);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && mario.y === 300) {
+                mario.dy = mario.jumpPower;
+            }
+            if (e.code === 'KeyR' && !gameRunning) {
+                mario.y = 300;
+                mario.dy = 0;
+                obstacles = [];
+                score = 0;
+                gameRunning = true;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
