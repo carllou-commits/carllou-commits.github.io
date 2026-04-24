@@ -110,13 +110,8 @@
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
                     player.y + player.height > obstacle.y;
-                if (collision) {
-                    if (obstacle.type === 'spike') {
-                        gameRunning = false;
-                    } else if (obstacle.type === 'block' && !landedOnBlock) {
-                        // If not landing on top, die
-                        gameRunning = false;
-                    }
+                if (collision && obstacle.type === 'spike') {
+                    gameRunning = false;
                 }
             });
 
@@ -175,4 +170,5 @@
     </script>
 </body>
 </html>
+
 
