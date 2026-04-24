@@ -38,6 +38,7 @@
         let score = 0;
         let gameRunning = true;
         let speed = 6;
+        let won = false;
 
         function drawPlayer() {
             ctx.fillStyle = '#00FFFF';
@@ -70,11 +71,25 @@
             player.y += player.dy;
             player.dy += player.gravity;
 
-            if (player.y >= 330) {
+            let landedOnBlock = false;
+            obstacles.forEach(obstacle => {
+                if (obstacle.type === 'block' && player.dy > 0 &&
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y + player.height >= obstacle.y &&
+                    player.y + player.height <= obstacle.y + obstacle.height) {
+                    player.y = obstacle.y - player.height;
+                    player.dy = 0;
+                    player.onGround = true;
+                    landedOnBlock = true;
+                }
+            });
+
+            if (!landedOnBlock && player.y >= 330) {
                 player.y = 330;
                 player.dy = 0;
                 player.onGround = true;
-            } else {
+            } else if (!landedOnBlock) {
                 player.onGround = false;
             }
 
@@ -83,21 +98,31 @@
                 if (obstacle.x + obstacle.width < 0) {
                     obstacles.shift();
                     score++;
+                    if (score >= 20) {
+                        gameRunning = false;
+                        won = true;
+                    }
                     speed += 0.1; // Increase speed over time
                 }
                 // Collision detection
-                if (player.x < obstacle.x + obstacle.width &&
+                let collision = player.x < obstacle.x + obstacle.width &&
                     player.x + player.width > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
-                    player.y + player.height > obstacle.y) {
-                    gameRunning = false;
+                    player.y + player.height > obstacle.y;
+                if (collision) {
+                    if (obstacle.type === 'spike') {
+                        gameRunning = false;
+                    } else if (obstacle.type === 'block' && !landedOnBlock) {
+                        // If not landing on top, die
+                        gameRunning = false;
+                    }
                 }
             });
 
             // Generate obstacles
             if (Math.random() < 0.02) {
                 let type = Math.random() < 0.5 ? 'block' : 'spike';
-                let y = type === 'block' ? 300 : 320;
+                let y = 320; // Both on ground
                 obstacles.push({ x: 800, y: y, width: 30, height: 30, type: type });
             }
         }
@@ -111,7 +136,11 @@
             ctx.font = '20px Arial';
             ctx.fillText('Score: ' + score, 10, 30);
             if (!gameRunning) {
-                ctx.fillText('Game Over! Press R to Restart', 300, 200);
+                if (won) {
+                    ctx.fillText('You Win!', 350, 200);
+                } else {
+                    ctx.fillText('Game Over! Press R to Restart', 300, 200);
+                }
             }
         }
 
@@ -134,6 +163,7 @@
                 score = 0;
                 speed = 6;
                 gameRunning = true;
+                won = false;
             }
         });
 
